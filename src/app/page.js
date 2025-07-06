@@ -171,7 +171,7 @@ export default function Home() {
             alt="MeetUs Logo"
             width={400}
             height={400}
-            className="mb-6 mt-20 lg:mx-20 w-full h-full object-cover rounded-lg "
+            className="mb-6 mt-20 mx-4 lg:mx-20 w-full h-full object-cover rounded-lg "
           />
         </div>
 
