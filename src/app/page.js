@@ -69,7 +69,7 @@ export default function Home() {
     formData.email.trim() &&
     formData.password.trim();
   return token ? <Dashboard /> :
-    (<div className="relative w-full lg:overflow-hidden h-screen flex items-center justify-center font-sans">
+    (<div className="relative w-full lg:overflow-hidden h-screen flex items-center justify-center font-serif ">
       {/* Background gradients */}
       <div className="absolute top-[-100px] right-20 w-[50vw] h-[500px] rounded-full bg-gradient-to-bl from-purple-400 to-white opacity-90 z-0 blur-2xl"></div>
       <div className="absolute bottom-0 right-0 w-[25vw] h-[200px] rounded-full bg-gradient-to-tl from-purple-500 to-white opacity-60 blur-2xl"></div>
