@@ -169,9 +169,9 @@ export default function Home() {
           <Image
             src="/logo.png"
             alt="MeetUs Logo"
-            width={380}
+            width={400}
             height={400}
-            className="mb-6 mt-20 lg:mx-20 w-full h-full object-cover rounded-lg "
+            className="mb-6 mt-20 lg:mx-20 w-full h-full lg:object-cover rounded-lg "
           />
         </div>
 
