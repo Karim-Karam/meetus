@@ -1,103 +1,182 @@
+'use client';
 import Image from "next/image";
+import { useState } from "react";
+import { useAuthStore } from "../../store";
+import { Dashboard } from "../../dashboard";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [validationErrors, setValidationErrors] = useState({});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const { token, login, isLoading, error, clearError } = useAuthStore();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    // Clear API error when user starts typing
+    if (error) {
+      clearError();
+    }
+  };
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!isValidEmail(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password.trim()) {
+      errors.password = 'Password is required';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    await login(formData.email, formData.password);
+  };
+
+  const isFormValid = isValidEmail(formData.email) &&
+    formData.email.trim() &&
+    formData.password.trim();
+  return token ? <Dashboard /> :
+    (<div className="relative w-full lg:overflow-hidden h-screen flex items-center justify-center font-sans">
+      {/* Background gradients */}
+      <div className="absolute top-[-100px] right-20 w-[50vw] h-[500px] rounded-full bg-gradient-to-bl from-purple-400 to-white opacity-90 z-0 blur-2xl"></div>
+      <div className="absolute bottom-0 right-0 w-[25vw] h-[200px] rounded-full bg-gradient-to-tl from-purple-500 to-white opacity-60 blur-2xl"></div>
+
+      <div className="w-full h-full flex-col-reverse lg:flex-row flex px-5 lg:px-20 mb-10 lg:mb-0 items-center justify-center">
+        <div className="flex-1 text-center flex flex-col items-center align-middle justify-center pb-5 lg:pb-0 lg:px-20 text-black z-20">
+          <h1 className="text-5xl w-full font-bold mb-4">Welcome back</h1>
+          <p className="text-lg text-gray-600 px-10 mb-6">
+            Step into our shopping metaverse for an unforgettable shopping experience
+          </p>
+
+          {/* API Error Message */}
+          {error && (
+            <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Email Input */}
+          <div className="w-full mb-4">
+            <div className={`w-full flex items-center bg-white border rounded-lg focalidationErrors.email ? 'border-red-500' : 'border-gray-300'}`}>
+              <span className="pl-3 pr-2 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                </svg>
+              </span>
+              <input
+                type="email"
+                required
+                autoFocus
+                onChange={handleChange}
+                value={formData.email}
+                name="email"
+                id="email"
+                autoComplete="email"
+                placeholder="Email"
+                className="w-full p-3 rounded-lg focus:outline-none"
+                style={{ border: 'none', boxShadow: 'none' }}
+              />
+            </div>
+            {validationErrors.email && (
+              <p className="text-red-500 text-sm mt-1 text-left">{validationErrors.email}</p>
+            )}
+          </div>
+
+          {/* Password Input */}
+          <div className="w-full mb-6">
+            <div className={`w-full flex items-center bg-white border rounded-lg focus-within:ring-2 focus-within:ring-purple-500 ${validationErrors.password ? 'border-red-500' : 'border-gray-300'}`}>
+              <span className="pl-3 pr-2 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m6-6V9a6 6 0 10-12 0v2a2 2 0 00-2 2v5a2 2 0 002 2h12a2 2 0 002-2v-5a2 2 0 00-2-2z" />
+                </svg>
+              </span>
+              <input
+                type="password"
+                required
+                onChange={handleChange}
+                value={formData.password}
+                name="password"
+                id="password"
+                autoComplete="current-password"
+                placeholder="Password"
+                className="w-full p-3 rounded-lg focus:outline-none"
+                style={{ border: 'none', boxShadow: 'none' }}
+              />
+            </div>
+            {validationErrors.password && (
+              <p className="text-red-500 text-sm mt-1 text-left">{validationErrors.password}</p>
+            )}
+          </div>
+
+          <button
+            disabled={!isFormValid || isLoading}
+            onClick={handleSubmit}
+            className="w-full bg-purple-600 text-white p-3 disabled:bg-gray-400 rounded-lg hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
+          </button>
+
+          <p className="text-sm text-gray-500 mt-4">
+            Don&#39;t have an account?{' '}
+            <span className="text-purple-600 hover:underline">Sign Up</span>
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+
+        <div className="flex-1 lg:flex-[2] z-20">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="/logo.png"
+            alt="MeetUs Logo"
+            width={400}
+            height={400}
+            className="mb-6 mt-20 lg:mx-20 w-full h-full object-cover rounded-lg "
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        </div>
+
+      </div>
+    </div>)
 }
+
+
