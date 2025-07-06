@@ -165,13 +165,13 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex-1 lg:flex-[2] z-20">
+        <div className="flex-1 mx-4 lg:mx-0 lg:flex-[2] z-20">
           <Image
             src="/logo.png"
             alt="MeetUs Logo"
             width={400}
             height={400}
-            className="mb-6 mt-20 mx-4 lg:mx-20 w-full h-full object-cover rounded-lg "
+            className="mb-6 mt-20 lg:mx-20 w-full h-full object-cover rounded-lg "
           />
         </div>
 
